@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NKHANG // KEY MANAGER</title>
+<style>
+body{margin:0;background:#020707;color:#d9fffa;font:14px monospace;padding:20px}.wrap{max-width:1000px;margin:auto}.box{background:#061312;border:1px solid #00ffd5;padding:20px;box-shadow:0 0 20px #00ffd533}h1{color:#00ffd5;text-shadow:0 0 12px #00ffd5}input,button{padding:10px;margin:4px;background:#020807;border:1px solid #00ffd5;color:#d9fffa;font-family:monospace}button{cursor:pointer}button:hover{background:#00ffd5;color:#00100d}table{width:100%;border-collapse:collapse;margin-top:20px}th,td{border:1px solid #164b45;padding:9px;text-align:left}.ok{color:#00ffd5}.off{color:#ff5577}.muted{color:#6aa8a0}
+</style></head><body><div class="wrap"><div class="box"><h1>NKHANG // KEY MANAGER</h1><p class="muted">Tạo, khóa, mở, sửa hạn và xóa key.</p>
+<input id="token" type="password" placeholder="ADMIN TOKEN"><button onclick="load()">Đăng nhập</button><hr>
+<input id="name" placeholder="Tên user"><input id="expires" type="date"><input id="custom" placeholder="Key tùy chọn"><button onclick="create()">+ TẠO KEY</button>
+<div id="msg"></div><table><thead><tr><th>Key</th><th>User</th><th>Hạn</th><th>Trạng thái</th><th>Thao tác</th></tr></thead><tbody id="rows"></tbody></table>
+</div></div>
+<script>
+let token="";
+const esc=s=>String(s??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;");
+function h(){return {"Content-Type":"application/json","x-admin-token":token}}
+async function load(){token=document.getElementById("token").value.trim();const r=await fetch("/api/admin/keys",{headers:{"x-admin-token":token}}),d=await r.json();if(!d.success){msg("Sai ADMIN TOKEN");return}render(d.keys)}
+function msg(x,ok=false){document.getElementById("msg").innerHTML=`<p class="${ok?"ok":"off"}">${esc(x)}</p>`}
+function render(a){document.getElementById("rows").innerHTML=a.map(x=>`<tr><td>${esc(x.key)}</td><td>${esc(x.name)}</td><td>${x.expires||"Không hạn"}</td><td class="${x.active&&!x.expired?"ok":"off"}">${x.expired?"EXPIRED":x.active?"ACTIVE":"DISABLED"}</td><td><button onclick='toggle(${JSON.stringify(x.key)},${!x.active})'>${x.active?"Khóa":"Mở"}</button><button onclick='removeKey(${JSON.stringify(x.key)})'>Xóa</button></td></tr>`).join("")}
+async function create(){const body={name:document.getElementById("name").value,expires:document.getElementById("expires").value,key:document.getElementById("custom").value};const r=await fetch("/api/admin/keys",{method:"POST",headers:h(),body:JSON.stringify(body)}),d=await r.json();if(!d.success){msg(d.message);return}msg("Đã tạo key: "+d.key,true);load()}
+async function toggle(k,a){await fetch("/api/admin/keys/"+encodeURIComponent(k),{method:"PATCH",headers:h(),body:JSON.stringify({active:a})});load()}
+async function removeKey(k){if(!confirm("Xóa key này?"))return;await fetch("/api/admin/keys/"+encodeURIComponent(k),{method:"DELETE",headers:h()});load()}
+</script></body></html>

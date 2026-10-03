@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NKHANG // AIM PANEL</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--neon:#00ffd5;--bg:#020707}
+body{min-height:100vh;overflow:hidden;background:radial-gradient(circle at center,#06332e 0%,#021211 35%,#000504 75%);color:#d9fffa;font-family:"Courier New",monospace}
+#matrix{position:fixed;inset:0;width:100%;height:100%;opacity:.13;z-index:0}
+body:after{content:"";position:fixed;inset:0;pointer-events:none;z-index:10;background:repeating-linear-gradient(0deg,rgba(0,255,213,.025) 0,rgba(0,255,213,.025) 1px,transparent 1px,transparent 4px)}
+.hidden{display:none!important}
+.screen{position:relative;z-index:2;width:min(430px,92%);margin:7vh auto}
+.login-box,.panel{background:rgba(3,18,19,.94);border:1px solid var(--neon);box-shadow:0 0 8px var(--neon),0 0 35px #00ffd528,inset 0 0 30px #00ffd50d}
+.login-box{padding:35px 28px;text-align:center;clip-path:polygon(0 15px,15px 0,calc(100% - 15px) 0,100% 15px,100% calc(100% - 15px),calc(100% - 15px) 100%,15px 100%,0 calc(100% - 15px))}
+.logo{color:var(--neon);font-size:29px;font-weight:bold;letter-spacing:5px;text-shadow:0 0 5px var(--neon),0 0 15px var(--neon),0 0 35px var(--neon)}
+.sub{margin-top:9px;color:#6aa8a0;font-size:10px;letter-spacing:3px}
+.login-line{width:80%;height:1px;margin:25px auto;background:var(--neon);box-shadow:0 0 10px var(--neon)}
+.key-input{width:100%;padding:15px;background:#010908;border:1px solid #17675d;outline:none;color:var(--neon);text-align:center;font:14px "Courier New";letter-spacing:2px}
+.key-input:focus{border-color:var(--neon);box-shadow:0 0 10px #00ffd566}
+.key-input::placeholder{color:#35615c}
+.login-btn,.activate{width:100%;padding:14px;background:transparent;border:1px solid var(--neon);color:var(--neon);font-family:inherit;font-weight:bold;letter-spacing:3px;cursor:pointer;transition:.25s}
+.login-btn{margin-top:14px}.login-btn:hover,.activate:hover{background:var(--neon);color:#00100d;box-shadow:0 0 20px var(--neon)}
+.login-btn:disabled{opacity:.55;cursor:wait}
+.error{height:18px;margin-top:12px;color:#ff5577;font-size:11px}
+.panel{padding:25px;clip-path:polygon(0 12px,12px 0,calc(100% - 12px) 0,100% 12px,100% calc(100% - 12px),calc(100% - 12px) 100%,12px 100%,0 calc(100% - 12px))}
+.header{text-align:center;margin-bottom:20px}.header .logo{font-size:24px}
+.status{display:flex;justify-content:space-between;padding:10px 12px;margin-bottom:15px;border:1px solid #00ffd559;background:#00ffd509;font-size:10px}
+.online{color:var(--neon);text-shadow:0 0 8px var(--neon)}
+.option{display:flex;align-items:center;justify-content:space-between;margin:9px 0;padding:12px;border:1px solid #00ffd540;background:linear-gradient(90deg,#00ffd50e,#00000026);transition:.25s}
+.option:hover{transform:translateX(3px);border-color:var(--neon);box-shadow:0 0 12px #00ffd533}
+.label{display:block;font-size:13px;font-weight:bold;letter-spacing:1px}.desc{display:block;margin-top:4px;color:#4e7771;font-size:8px}
+.switch{position:relative;width:46px;height:23px;flex-shrink:0}.switch input{display:none}.slider{position:absolute;inset:0;cursor:pointer;background:#061210;border:1px solid #28514c;transition:.25s}.slider:before{content:"";position:absolute;width:15px;height:15px;left:3px;top:3px;background:#45645f;transition:.25s}
+input:checked+.slider{border-color:var(--neon);background:#00ffd51f;box-shadow:0 0 10px #00ffd573}input:checked+.slider:before{transform:translateX(23px);background:var(--neon);box-shadow:0 0 10px var(--neon)}
+.fov{margin-top:15px;padding:13px;border:1px solid #00ffd54d}.fov-head{display:flex;justify-content:space-between;margin-bottom:10px;font-size:11px}#fovValue{color:var(--neon);text-shadow:0 0 8px var(--neon)}
+input[type=range]{width:100%;accent-color:var(--neon);cursor:pointer}.activate{margin-top:17px}.logout{display:block;margin:12px auto 0;border:0;background:transparent;color:#456b65;font-family:inherit;font-size:9px;cursor:pointer}.logout:hover{color:#ff5577}.footer{margin-top:12px;text-align:center;color:#355c56;font-size:8px;letter-spacing:2px}.glitch{animation:glitch 3s infinite}@keyframes glitch{0%,90%,100%{transform:translate(0)}92%{transform:translate(2px,-1px)}94%{transform:translate(-2px,1px)}}@media(max-width:500px){.screen{margin:25px auto}.panel{padding:19px 15px}.login-box{padding:30px 20px}}
+</style>
+</head>
+<body>
+<canvas id="matrix"></canvas>
+
+<div class="screen" id="loginScreen">
+  <div class="login-box">
+    <div class="logo glitch">NKHANG</div>
+    <div class="sub">SECURE ACCESS SYSTEM</div>
+    <div class="login-line"></div>
+    <input type="password" id="keyInput" class="key-input" placeholder="ENTER ACCESS KEY" autocomplete="off">
+    <button class="login-btn" id="loginBtn">[ ACCESS PANEL ]</button>
+    <div class="error" id="error"></div>
+  </div>
+</div>
+
+<div class="screen hidden" id="appScreen">
+  <div class="panel">
+    <div class="header">
+      <div class="logo glitch">NKHANG // AIM</div>
+      <div class="sub">CYBERPUNK CONTROL PANEL</div>
+    </div>
+    <div class="status"><span>SYSTEM STATUS</span><span class="online">● ACCESS GRANTED</span></div>
+
+    <div class="option"><div><span class="label">AIM BOT</span><span class="desc">SIMULATED AIM ASSIST</span></div><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+    <div class="option"><div><span class="label">AIM SILEN</span><span class="desc">SILENT AIM UI MODE</span></div><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+    <div class="option"><div><span class="label">AIM HEADSHOT</span><span class="desc">HEAD TARGET PRESET</span></div><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+    <div class="option"><div><span class="label">ESP ENABLE</span><span class="desc">VISUAL OVERLAY PREVIEW</span></div><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+    <div class="option"><div><span class="label">NO RECOIL</span><span class="desc">SIMULATED RECOIL OPTION</span></div><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+
+    <div class="fov"><div class="fov-head"><span>FOV CONFIGURATION</span><span id="fovValue">90°</span></div><input type="range" id="fov" min="30" max="180" value="90"></div>
+    <button class="activate" id="activate">[ ACTIVATE PANEL ]</button>
+    <button class="logout" id="logout">[ LOG OUT ]</button>
+    <div class="footer">NKHANG // VISUAL DEMO // SERVER KEY</div>
+  </div>
+</div>
+
+<script>
+const canvas=document.getElementById("matrix"),ctx=canvas.getContext("2d");
+const chars="01ABCDEFGHIJKLMNOPQRSTUVWXYZ#$%&@<>[]{}";const fontSize=14;let columns,drops;
+function resizeMatrix(){canvas.width=innerWidth;canvas.height=innerHeight;columns=Math.floor(canvas.width/fontSize);drops=Array(columns).fill(1)}resizeMatrix();
+setInterval(()=>{ctx.fillStyle="rgba(0,5,5,.075)";ctx.fillRect(0,0,canvas.width,canvas.height);ctx.fillStyle="#00ffd5";ctx.font=fontSize+"px monospace";for(let i=0;i<drops.length;i++){ctx.fillText(chars[Math.floor(Math.random()*chars.length)],i*fontSize,drops[i]*fontSize);if(drops[i]*fontSize>canvas.height&&Math.random()>.975)drops[i]=0;drops[i]++}},45);
+addEventListener("resize",resizeMatrix);
+
+const loginScreen=document.getElementById("loginScreen"),appScreen=document.getElementById("appScreen"),keyInput=document.getElementById("keyInput"),loginBtn=document.getElementById("loginBtn"),error=document.getElementById("error");
+
+async function checkKey(){
+  const key=keyInput.value.trim();
+  if(!key){error.textContent="⚠ PLEASE ENTER ACCESS KEY";return}
+  loginBtn.disabled=true;loginBtn.textContent="[ CHECKING KEY ]";error.textContent="";
+  try{
+    const r=await fetch("/api/check-key",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({key})});
+    const d=await r.json();
+    if(d.success){loginScreen.classList.add("hidden");appScreen.classList.remove("hidden")}
+    else{error.textContent="✖ "+(d.message||"INVALID KEY");keyInput.value="";keyInput.focus()}
+  }catch(e){error.textContent="✖ KEY SERVER OFFLINE"}
+  finally{loginBtn.disabled=false;loginBtn.textContent="[ ACCESS PANEL ]"}
+}
+loginBtn.onclick=checkKey;keyInput.onkeydown=e=>{if(e.key==="Enter")checkKey()};
+document.getElementById("logout").onclick=()=>{appScreen.classList.add("hidden");loginScreen.classList.remove("hidden");keyInput.value="";error.textContent=""};
+const fov=document.getElementById("fov");fov.oninput=()=>document.getElementById("fovValue").textContent=fov.value+"°";
+document.querySelectorAll(".switch input").forEach(x=>x.onchange=()=>{const o=x.closest(".option");o.style.borderColor=x.checked?"#00ffd5":"#00ffd540";o.style.boxShadow=x.checked?"0 0 15px #00ffd540":"none"});
+document.getElementById("activate").onclick=function(){const b=this;const t=b.textContent;b.textContent="[ PANEL ACTIVE ]";b.style.background="#00ffd5";b.style.color="#00100d";setTimeout(()=>{b.textContent=t;b.style.background="transparent";b.style.color="#00ffd5"},1500)};
+</script>
+</body>
+</html>
